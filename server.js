@@ -10,7 +10,10 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     console.log(file);
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(
+      null,
+      `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
+    );
   },
 });
 
@@ -21,12 +24,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use("/images", express.static("Images"));
+
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to Multer test" });
 });
 
 app.post("/upload", upload.single("image"), (req, res) => {
-  res.send("image Uploaded");
+  res.send(`/images/${path.basename(req.file.path)}`);
 });
 
 app.listen(PORT, () => {
